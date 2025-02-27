@@ -38,9 +38,10 @@ def generate_recipe(ingredients, cook_time, cuisine, dietary):
         "Authorization": f"Bearer {LLM_API_KEY}",
         "Content-Type": "application/json"
     }
+    # Use "messages" instead of "prompt" since the API expects chat format
     payload = {
         "model": "llama-3.3-70b-versatile",
-        "prompt": prompt,
+        "messages": [{"role": "user", "content": prompt}],
         "max_tokens": 1024,
         "temperature": 0.7
     }
@@ -50,14 +51,18 @@ def generate_recipe(ingredients, cook_time, cuisine, dietary):
         return {"error": "LLM API error", "details": response.text}
     
     result = response.json()
-    generated_text = result.get("generated_text", "")
+    # Depending on your LLM's response structure, you might need to navigate into a nested field.
+    # For example, OpenAI's Chat API returns the text under choices[0].message.content.
+    generated_text = ""
+    try:
+        generated_text = result["choices"][0]["message"]["content"]
+    except Exception as e:
+        generated_text = result.get("generated_text", "")
     
     try:
-        # Try to parse the generated text as JSON.
         recipe_data = json.loads(generated_text)
         return recipe_data
     except Exception as e:
-        # Fallback if JSON parsing fails.
         return {
             "title": "Generated Recipe",
             "prep_time": "Unknown",
