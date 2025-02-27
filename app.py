@@ -1,13 +1,13 @@
 from flask import Flask, render_template, request, jsonify
 import requests
 import json
-import os
 from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
-# Allow CORS for all routes with specified methods.
+# Allow CORS for all routes and explicitly allow GET, POST, and OPTIONS methods.
 CORS(app, resources={r"/*": {"origins": "*"}}, methods=["GET", "POST", "OPTIONS"])
 
+# IMPORTANT: For security, load your API key from an environment variable in production.
 LLM_API_KEY = "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"
 LLM_API_URL = "https://api.groq.com/openai/v1/chat/completions"  # Update this URL if needed
 
@@ -53,9 +53,11 @@ def generate_recipe(ingredients, cook_time, cuisine, dietary):
     generated_text = result.get("generated_text", "")
     
     try:
+        # Try to parse the generated text as JSON.
         recipe_data = json.loads(generated_text)
         return recipe_data
     except Exception as e:
+        # Fallback if JSON parsing fails.
         return {
             "title": "Generated Recipe",
             "prep_time": "Unknown",
@@ -70,6 +72,10 @@ def generate_recipe(ingredients, cook_time, cuisine, dietary):
 @app.route('/generate-recipe', methods=['POST', 'OPTIONS'])
 @cross_origin()  # Explicitly allow CORS on this route
 def generate_recipe_api():
+    # Handle preflight OPTIONS request
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+
     data = request.get_json()
     ingredients = data.get('ingredients', '')
     cook_time = data.get('cook_time', '')
