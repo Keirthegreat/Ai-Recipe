@@ -18,7 +18,7 @@ def index():
 
 def generate_recipe(ingredients, cook_time, cuisine, dietary):
     """
-    Connects to the llama-3.3-70b-versatile LLM to generate a recipe.
+    Connects to the LLM to generate a recipe.
     Constructs a prompt based on user inputs and expects the LLM to return a JSON-formatted recipe.
     """
     dietary_str = ", ".join(dietary) if dietary else "none"
@@ -87,4 +87,4 @@ def generate_recipe_api():
     return jsonify(recipe)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=3000)
