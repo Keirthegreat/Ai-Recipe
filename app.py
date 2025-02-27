@@ -2,8 +2,10 @@ from flask import Flask, render_template, request, jsonify
 import requests
 import json
 import os
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)  # Allow CORS for all domains globally
 
 # IMPORTANT: For security, load your API key from an environment variable in production.
 LLM_API_KEY = "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"
